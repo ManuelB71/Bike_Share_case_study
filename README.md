@@ -13,13 +13,9 @@ The director of marketing believes that maximizing the number of annual members 
 Analyze Cyclistic historical bike trip data to identify trends in how annual members and casual riders use Cyclistic bikes differently. Based on key findings, provide the executive team the top three recommendations to convert casual riders into members.
 
 ## PREPARE
-The datasets are made available by a link to a dedicated repository with Cyclistic’s historical trip data. (Note: The datasets have a different name because Cyclistic is a fictional company. For the purposes of this case study, the datasets are appropriate and will enable to answer the business questions. The data has been made available by Motivate International Inc. under this [license](https://ride.divvybikes.com/data-license-agreement).) Limitation: due to data-privacy considerations, lack of personally identifiable information prevents analysis related to the place of residence or purchase history of riders. 
+The datasets are made available through a repository with 'Cyclistic’s' historical trip data. As Cyclistic is a fictional company, appropriate data has been made available by Motivate International Inc. (now: Lyft) under this [license](https://ride.divvybikes.com/data-license-agreement).) for the purposes of this case study. The data is sourced directly from the company that operates the bikesharing service in a large US city, and made public with the consent of that city. Due to data-privacy considerations, no attempt may be made to correlate the data with personally identifiable information (e.g. analysis related to the place of residence or purchase history of riders). Data is available from 2013 until October 2022, either per month or per quarter (repacked into zip files). In view of the above, the data is considered to be credible (reliable, original, comprehensive, current, and cited/vetted).
 
-* Are there issues with bias or credibility in this data? Does your data ROCCC?
-* How are you addressing licensing, privacy, security, and accessibility?
-* How did you verify the data’s integrity?
-
-Data is available from 2013 until October 2022 in csv files (repacked into zip files). For the purposes of this analysis, only the 12 most recent months will be used (November 2021 to October 2022). The data is downloaded and stored onto a local drive.
+For the purposes of this analysis, only the 12 most recent months will be used (November 2021 to October 2022). The data is downloaded and stored onto a local drive. The data is organized as (zipped) csv files, in rows and columns, and defined data types. As the smallest file contains 100k+ rows and the largest 800k+ rows, its best to make use of a tool data can handle large data sizes for the purposes of processing and analysis, like SQL or R. 
 
 * How is the data organized?
 * Are there any problems with the data?
