@@ -24,7 +24,7 @@ Microsoft Excel is used for gaining quick insights into the data (sorting and fi
 All datasets are uploaded into BigQuery via the import functionality.
 
 ### Data cleaning
-The cleaning process using SQL is described separately, see data_cleaning_report.
+The cleaning process using SQL is described separately, see Data_cleaning_report.
 
 
 Trip lengths less or equal to zero
