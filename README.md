@@ -18,13 +18,13 @@ The datasets are made available through a repository with 'Cyclistic’s' histor
 For the purposes of this analysis, only the 12 most recent months will be used (November 2021 to October 2022). The data is downloaded and stored onto a local drive. The data is organized as (zipped) csv files, in rows and columns, and defined data types. As the smallest file contains 100k+ rows and the largest 800k+ rows, its best to make use of a tool data can handle large data sizes for the purposes of processing and analysis, like SQL or R. 
 
 ## PROCESS
-Microsoft Excel is used for gaining quick insights into the data (sorting and filtering of single CSV / Excel files) and SQL (BigQuery) is used for proper data processing for large datasets.
+Microsoft Excel is used for gaining quick insights into the data (sorting and filtering of single CSV / Excel files) and SQL (BigQuery) is used for proper data processing for large datasets. Edit: due to data size import limitations in BigQuery (free version), moved to MS SQL Server Studio for main processing tasks. 
 
 ### Data upload
-All datasets are uploaded into BigQuery via the import functionality.
+All datasets (12) are uploaded into MS SQL Server via the import functionality.
 
 ### Data cleaning
-The cleaning process using SQL is described separately, see [Data_cleaning_report](https://github.com/ManuelB71/Bike_Share_case_study/blob/main/Data_cleaning_report).
+The clean-up process using SQL is described separately, see [Data_cleaning_report](https://github.com/ManuelB71/Bike_Share_case_study/blob/main/Data_cleaning_report).
 
 
 Trip lengths less or equal to zero
