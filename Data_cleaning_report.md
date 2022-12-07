@@ -41,22 +41,88 @@ As the data is specifically made available for this case study, any encountered 
 
 **Null data:** 
 
-The import functionality in MS SQL SERVER shows during import whether fields are imported as 'NULL' or 'NOT NULL', the latter meaning that NULLs are not allowed. The table properties show that only the columns related to station names, station IDs, and ride start and end coordinates (long, lat) have been imported as datatypes allowed to be 'NULL'. This was verified by performing searches in SQL to confirm the previous. See below example hereof for the start_station_id column.
+The import functionality in MS SQL SERVER shows during import whether fields are imported as 'NULL' or 'NOT NULL', the latter meaning that NULLs are not allowed. The table properties show that only the columns related to station names, station IDs, and ride start and end coordinates (long, lat) have been imported as datatypes allowed to be 'NULL'. This existence of NULLs was verified by performing searches in SQL. See below example hereof for the start_station_id column.
 
 ````
 SELECT 
 	SUM(CASE WHEN start_station_id IS NULL THEN 1 ELSE 0 END) AS null_count, 
 	count(start_station_id) AS non_null_count
 FROM trips;
+
+Results:
 --null_count  non_null_count
 --878177      4877517
 ````
-See below an example for a 'NOT NULL' column to conform that these indeed to not contain 'NULLs'.
+See below the query for 'NOT NULL' columns to confirm that these indeed to not contain 'NULLs'.
 ````
+SELECT
+	SUM(CASE WHEN ride_id IS NULL THEN 1 ELSE 0 END) AS ride_id_null, 
+	SUM(CASE WHEN rideable_type IS NULL THEN 1 ELSE 0 END) AS rideable_type_null,
+	SUM(CASE WHEN started_at IS NULL THEN 1 ELSE 0 END) AS started_at_null,
+	SUM(CASE WHEN ended_at IS NULL THEN 1 ELSE 0 END) AS ended_at_null,
+	SUM(CASE WHEN member_casual IS NULL THEN 1 ELSE 0 END) AS member_casual_null
+FROM trips;
+GO
 
+Results:
+--ride_id_null	rideable_type_null	started_at_null	ended_at_null	member_casual_null
+--0		0			0		0		0
 ````
+The above confirms that NULL data is only located in the columns as specified before. If we omit all the records with NULL data from the dataset, we would also remove records with valuable data like rideable type, ride date and time information, ride length, and member v casual rider. Analysis that only makes use of these fields benefits from having more data points. So, we will leave the records with NULLs in the dataset, while being aware that analysis that involves station names, IDs and coordinates will be based on a smaller subset of records. In addition, there is a possibility to correct some of the missing data based on data that is already included in the table. For example, a missing station name can be retrieved from other records on the condition that the data in the coordinates columns (start_lat, start_lng, end-lat, end_lng) match. Note: a start station name should always have the same latitude and longtitude coordinates. Also note that a start station name on the same coordinates as an end station name, is basically the same station name. So we are able to make cross-references between columns. In the code below an example is shown of this repair exercise. The resulting count of NULLs is shown before and after. In the first round the NULL count is brought down from 940.010 to 580.365, which is almost 360k records. In the second round an extra reduction is achieved of circa 50k records. On a total of 5.8M records, that's circa 7%. 
+````
+--Count NULL and non-NULL end_station_name (before)
+SELECT 
+	SUM(CASE WHEN end_station_name IS NULL THEN 1 ELSE 0 END) AS null_count, 
+	count(end_station_name) AS non_null_count
+FROM trips;
+--null_count	non_null_count
+--940010	4815684
 
-Did you search for NULLs using conditional formatting and filters?
+--Fill end station names
+UPDATE t1
+SET t1.end_station_name = t2.end_station_name
+FROM trips t1
+LEFT JOIN trips t2
+	ON (
+	t1.end_lat = t2.end_lat
+	AND t1.end_lng = t2.end_lng)
+WHERE 
+	(t1.end_station_name = '' OR t1.end_station_name IS NULL) 
+	AND NOT (t2.end_station_name = '' OR t2.end_station_name IS NULL)
+;
+GO
+
+--Count NULL and non-NULL end_station_name (after)
+SELECT 
+	SUM(CASE WHEN end_station_name IS NULL THEN 1 ELSE 0 END) AS null_count, 
+	count(end_station_name) AS non_null_count
+FROM trips;
+--null_count	non_null_count
+--580365	5175329
+
+
+--Fill end station names with start station names
+UPDATE t1
+SET t1.end_station_name = t2.start_station_name
+FROM trips t1
+LEFT JOIN trips t2
+	ON (
+	t1.end_lat = t2.start_lat
+	AND t1.end_lng = t2.start_lng)
+WHERE 
+	(t1.end_station_name = '' OR t1.end_station_name IS NULL) 
+	AND NOT (t2.start_station_name = '' OR t2.start_station_name IS NULL)
+;
+GO
+
+--Count NULL and non-NULL end_station_name (after)
+SELECT 
+	SUM(CASE WHEN end_station_name IS NULL THEN 1 ELSE 0 END) AS null_count, 
+	count(end_station_name) AS non_null_count
+FROM trips;
+--null_count	non_null_count
+--529101		5226593
+````
 
 **Misspelled words:** 
 
