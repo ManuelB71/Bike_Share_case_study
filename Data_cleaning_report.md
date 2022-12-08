@@ -39,7 +39,7 @@ Made use of a checklist provided in the Google Data Analysis course to identify 
 
 As the data is specifically made available for this case study, any encountered data errors will not be communicated back to identify the source and potentially rectify them.
 
-**Null data:** 
+**NULL data:** 
 
 The import functionality in MS SQL SERVER shows during import whether fields are imported as 'NULL' or 'NOT NULL', the latter meaning that NULLs are not allowed. The table properties show that only the columns related to station names, station IDs, and ride start and end coordinates (long, lat) have been imported as datatypes allowed to be 'NULL'. This existence of NULLs was verified by performing searches in SQL. See below example hereof for the start_station_id column.
 
@@ -70,10 +70,8 @@ Results:
 ````
 The above confirms that NULL data is only located in the columns as specified before. If we omit all the records with NULL data from the dataset, we would also remove records with valuable data like rideable type, ride date and time information, ride length, and member v casual rider. Analysis that only makes use of these fields benefits from having more data points. So, we will leave the records with NULLs in the dataset, while being aware that analysis that involves station names, IDs and coordinates will be based on a smaller subset of records.
 
-*NOTE: the possibility was investigated to correct some of the missing data based on data that is already included in the table. For example, a missing station name can be retrieved from other records on the condition that the data in the coordinates columns (start_lat, start_lng, OR end_lat, end_lng) are a match. This may also be achieved by cross-references between start station and end station names columns as these should in principle have the same latitude and longtitude coordinates. After an initial test run (see example query below), it was noted that the run gave inconsistent results (e.g. a station id number with two or more distinct station names). Investigation showed that the query 'worked' as intended (operationally), the origin of the inconsistent output was found in inconsistent coordinates data as recorded in the dataset. As there are no means available in the supplied dataset to unambiguously establish which combinations of station id, station name and latitude and longtitude coordinates are correct, no further effort will be taken to 'fill in the gaps'. Note that also no conducive public data was found, after a quick review, on the [Chicago Open Data website](https://data.cityofchicago.org/) (to which the dataset refers), that could be helpful in this respect.* 
+*NOTE: the possibility was investigated to correct some of the missing data based on data that is already included in the table. For example, a missing station name can be retrieved from other records on the condition that the data in the coordinates columns (start_lat, start_lng, OR end_lat, end_lng) are a match. This may also be achieved by cross-references between start station and end station names columns as these should in principle have the same latitude and longtitude coordinates. After an initial test run (see example query below), it was noted that the run gave inconsistent results (e.g. a station id number with two or more distinct station names). Investigation showed that the query 'worked' as intended (operationally), the origin of the inconsistent output was found in inconsistent coordinates data as recorded in the dataset. As there are no means available in the supplied dataset to unambiguously establish which combinations of station id, station name and latitude and longtitude coordinates are correct, no further effort will be taken to 'fill in the gaps'. Note that also no conducive public data was found, after a quick review on the [Chicago Open Data website](https://data.cityofchicago.org/) (to which the dataset refers), that could be helpful in this respect to make a deceive call on correct combinations.* 
 
-
-Note: a start station name should always have the same latitude and longtitude coordinates. Also note that a start station name on the same coordinates as an end station name, is basically the same station name. So we are able to make cross-references between columns. In the code below an example is shown of this repair exercise. The resulting count of NULLs is shown before and after. In the first round the NULL count is brought down from 940.010 to 580.365, which is almost 360k records. In the second round an extra reduction is achieved of circa 50k records. On a total of 5.8M records, that's circa 7%.* 
 ````
 --Example query to fill empty end station names
 UPDATE t1
@@ -90,12 +88,12 @@ WHERE
 ````
 
 **Misspelled words:** 
+While investigating the NULL data above, it was also noted that not all station_ids refer to a unique station_name. Of the 1300+ start_station_ids, 300+ have non-unique references to a station name. For example, some names have 'amp;' added to the string (coding issue), some miss additions like E(ast) or W(est), for some station_ids the related station_name changes over time (while the streets are close to each other, both stations still appear to exist), some station_ids with added 'temp' to the name, either at first or at the end during time, and some get 'Public Rack -' inserted in front of the name. As it is not clear what version of a station_name should supersede another and considering the number of station_ids the cleaning effort would concern, the current data situation will be taken as a data limitation (as-is). Whenever any analysis will be performed later on that includes any of these fields, this limitation should be kept in mind. 
 
-Did you locate all misspellings?
+In addition to these columns, also rideable_type (classic, electric, docked) and member_casual(member, casual) were checked, but no misspellings were encountered.
 
 **Mistyped numbers:** 
-
-Did you double-check that your numeric data has been entered correctly?
+Numeric data in this dataset only relates to coordinates. Considering the above described limitation with station_ids and station_names, also no check will be performed on the coordinates correctness as there is even less reference data available to determine correctness; however, with enough time, effort and other sources of data these could be assigned a probability of correctness to determine correctness, and thus assign a level of integrity to work with the data. But for this exercise this data will be considered to be limited in its use.
 
 **Extra spaces and characters:** 
 
@@ -106,7 +104,7 @@ Did you remove any extra spaces or characters using the TRIM function?
 Did you remove duplicates in spreadsheets using the Remove Duplicates function or DISTINCT in SQL?
 
 **Mismatched data types:** 
-
+The import functionality in MS SQL SERVER shows during import whether fields are imported....
 Did you check that numeric, date, and string data are typecast correctly?
 
 **Messy (inconsistent) strings:** 
