@@ -68,17 +68,14 @@ Results:
 --ride_id_null	rideable_type_null	started_at_null	ended_at_null	member_casual_null
 --0		0			0		0		0
 ````
-The above confirms that NULL data is only located in the columns as specified before. If we omit all the records with NULL data from the dataset, we would also remove records with valuable data like rideable type, ride date and time information, ride length, and member v casual rider. Analysis that only makes use of these fields benefits from having more data points. So, we will leave the records with NULLs in the dataset, while being aware that analysis that involves station names, IDs and coordinates will be based on a smaller subset of records. In addition, there is a possibility to correct some of the missing data based on data that is already included in the table. For example, a missing station name can be retrieved from other records on the condition that the data in the coordinates columns (start_lat, start_lng, end-lat, end_lng) match. Note: a start station name should always have the same latitude and longtitude coordinates. Also note that a start station name on the same coordinates as an end station name, is basically the same station name. So we are able to make cross-references between columns. In the code below an example is shown of this repair exercise. The resulting count of NULLs is shown before and after. In the first round the NULL count is brought down from 940.010 to 580.365, which is almost 360k records. In the second round an extra reduction is achieved of circa 50k records. On a total of 5.8M records, that's circa 7%. 
-````
---Count NULL and non-NULL end_station_name (before)
-SELECT 
-	SUM(CASE WHEN end_station_name IS NULL THEN 1 ELSE 0 END) AS null_count, 
-	count(end_station_name) AS non_null_count
-FROM trips;
---null_count	non_null_count
---940010	4815684
+The above confirms that NULL data is only located in the columns as specified before. If we omit all the records with NULL data from the dataset, we would also remove records with valuable data like rideable type, ride date and time information, ride length, and member v casual rider. Analysis that only makes use of these fields benefits from having more data points. So, we will leave the records with NULLs in the dataset, while being aware that analysis that involves station names, IDs and coordinates will be based on a smaller subset of records.
 
---Fill end station names
+*NOTE: the possibility was investigated to correct some of the missing data based on data that is already included in the table. For example, a missing station name can be retrieved from other records on the condition that the data in the coordinates columns (start_lat, start_lng, OR end_lat, end_lng) are a match. This may also be achieved by cross-references between start station and end station names columns as these should in principle have the same latitude and longtitude coordinates. After an initial test run (see example query below), it was noted that the run gave inconsistent results (e.g. a station id number with two or more distinct station names). Investigation showed that the query 'worked' as intended (operationally), the origin of the inconsistent output was found in inconsistent coordinates data as recorded in the dataset. As there are no means available in the supplied dataset to unambiguously establish which combinations of station id, station name and latitude and longtitude coordinates are correct, no further effort will be taken to 'fill in the gaps'. Note that also no conducive public data was found, after a quick review, on the [Chicago Open Data website](https://data.cityofchicago.org/) (to which the dataset refers), that could be helpful in this respect.* 
+
+
+Note: a start station name should always have the same latitude and longtitude coordinates. Also note that a start station name on the same coordinates as an end station name, is basically the same station name. So we are able to make cross-references between columns. In the code below an example is shown of this repair exercise. The resulting count of NULLs is shown before and after. In the first round the NULL count is brought down from 940.010 to 580.365, which is almost 360k records. In the second round an extra reduction is achieved of circa 50k records. On a total of 5.8M records, that's circa 7%.* 
+````
+--Example query to fill empty end station names
 UPDATE t1
 SET t1.end_station_name = t2.end_station_name
 FROM trips t1
@@ -90,38 +87,6 @@ WHERE
 	(t1.end_station_name = '' OR t1.end_station_name IS NULL) 
 	AND NOT (t2.end_station_name = '' OR t2.end_station_name IS NULL)
 ;
-GO
-
---Count NULL and non-NULL end_station_name (after)
-SELECT 
-	SUM(CASE WHEN end_station_name IS NULL THEN 1 ELSE 0 END) AS null_count, 
-	count(end_station_name) AS non_null_count
-FROM trips;
---null_count	non_null_count
---580365	5175329
-
-
---Fill end station names with start station names
-UPDATE t1
-SET t1.end_station_name = t2.start_station_name
-FROM trips t1
-LEFT JOIN trips t2
-	ON (
-	t1.end_lat = t2.start_lat
-	AND t1.end_lng = t2.start_lng)
-WHERE 
-	(t1.end_station_name = '' OR t1.end_station_name IS NULL) 
-	AND NOT (t2.start_station_name = '' OR t2.start_station_name IS NULL)
-;
-GO
-
---Count NULL and non-NULL end_station_name (after)
-SELECT 
-	SUM(CASE WHEN end_station_name IS NULL THEN 1 ELSE 0 END) AS null_count, 
-	count(end_station_name) AS non_null_count
-FROM trips;
---null_count	non_null_count
---529101		5226593
 ````
 
 **Misspelled words:** 
