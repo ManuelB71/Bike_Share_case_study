@@ -96,35 +96,137 @@ In addition to these columns, also rideable_type (classic, electric, docked) and
 Numeric data in this dataset only relates to coordinates. Considering the above described limitation with station_ids and station_names, also no check will be performed on the coordinates correctness as there is even less reference data available to determine correctness; however, with enough time, effort and other sources of data these could be assigned a probability of correctness to determine correctness, and thus assign a level of integrity to work with the data. But for this exercise this data will be considered to be limited in its use.
 
 **Extra spaces and characters:** 
-
-Did you remove any extra spaces or characters using the TRIM function?
+Performed trim on all columns of nvarchar type. See query example:
+````
+UPDATE trips2
+SET rideable_type = TRIM(rideable_type);
+````
 
 **Duplicates:** 
-
-Did you remove duplicates in spreadsheets using the Remove Duplicates function or DISTINCT in SQL?
+Checked for duplicate records, but no duplicates were encountered. 
+````
+SELECT ride_id, COUNT(ride_id)
+FROM trips2
+GROUP BY ride_id
+HAVING count(ride_id) > 1;
+````
 
 **Mismatched data types:** 
-The import functionality in MS SQL SERVER shows during import whether fields are imported....
-Did you check that numeric, date, and string data are typecast correctly?
+The import functionality in MS SQL SERVER shows during import with which data types designation fields (columns) are (suggested to be) imported. Correct typecasting was checked during that proces. Note: string data was first all imported as nvarchar(Max) as suggested for some columns; however, this appeared to affect query processing / speed. The data type was later on changed to nvarchar(128) as this sufficed for the data in the columns after checking max length for each column. See below sample query to amend data type.
+````
+ALTER TABLE trips2 
+ALTER COLUMN start_station_name NVARCHAR (128) NULL;
+````
 
 **Messy (inconsistent) strings:** 
-
-Did you make sure that all of your strings are consistent and meaningful?
+Given previous comments under 'misspelled data', no further work was done on consistency.
 
 **Messy (inconsistent) date formats:** 
-
-Did you format the dates consistently throughout your dataset?
+The date columns were imported under the same format. No incnsistency thus.
 
 **Misleading variable labels (columns):** 
-
-Did you name your columns meaningfully?
+Although variables could be improved to enhance readability for a third-party reader, they suffice for this exercise.
 
 **Truncated data:** 
-
-Did you check for truncated or missing data that needs correction?
+Given previous comments under 'NULL data' and 'misspelled data', no further work was done with respect to truncated or missing data.
 
 **Business Logic:** 
+The data makes sense for a bike sharing business.
 
-Did you check that the data makes sense given your knowledge of the business? 
 
+## Data enhancement
+Added new data variables as suggested in the case study guidance for ride_length and weekday. In addition also added extra columns for day of the week, week number(#), Month, Quarter, and Year to be able to create other data cross sections if needed.
+
+````
+--Insert new ride_length column (INT) and calculate ride_length in seconds
+ALTER TABLE trips2
+ADD ride_length INT NULL;
+GO
+
+UPDATE trips2
+SET ride_length = DATEDIFF(second, started_at, ended_at);
+GO
+
+--Count NULL and non-NULL ride_length
+SELECT 
+	SUM(CASE WHEN ride_length IS NULL THEN 1 ELSE 0 END) AS null_count, 
+	count(ride_length) AS non_null_count
+FROM trips2;
+--null_count	non_null_count
+--0		5755694
+GO
+
+--Count ride lengths per category in int and % (<0, 0-1, 1-24h, >24h)
+SELECT 
+	sum(case when ride_length < 0 then 1 else 0 end) AS 'Less than 0 seconds',
+	sum(case when ride_length between 0 and 60 then 1 else 0 end) AS 'Between 0 and 1 minute',
+	sum(case when ride_length between 60 and 86400 then 1 else 0 end) AS 'Between 1m and 24h',
+	sum(case when ride_length > 86400 then 1 else 0 end) AS 'More than 24h',
+	count(ride_length) AS total_rides
+FROM trips2;
+--Less than 0 seconds	Between 0 and 1 minute	Between 1m and 24h	More than 24h	total_rides
+--112			119506			5631877			5364		5755694
+
+SELECT 
+	cast(round(sum(case when ride_length < 0 then 1 else 0 end)*100.0 / count(ride_length),2,1) as decimal(10,2)) AS 'Less than 0 seconds',
+	cast(round(sum(case when ride_length between 0 and 60 then 1 else 0 end)*100.0 / count(ride_length),2,1) as decimal(10,2)) AS 'Between 0 and 1 minute',
+	cast(round(sum(case when ride_length between 60 and 86400 then 1 else 0 end)*100.0 / count(ride_length),2,1) as decimal(10,2)) AS 'Between 1m and 24h',
+	cast(round(sum(case when ride_length > 86400 then 1 else 0 end)*100.0 / count(ride_length),2,1) as decimal(10,2)) AS 'More than 24h',
+	count(ride_length) AS total_rides
+FROM trips2;
+--Less than 0 seconds	Between 0 and 1 minute	Between 1m and 24h	More than 24h	total_rides
+--0.00			2.07			97.84			0.09		5755694
+GO
+````
+From the analysis on the ride lengths data it is shown that there are records for ride lenghths that do not seem logical. Negative ride lenghths, rides shorter than one minute, and rides longer than 24 hours. As these make up just over 2% of the records, these can be safely excluded from the dataset. As a result 124.982 rows were deleted from the dataset.
+````
+DELETE
+FROM trips2
+WHERE ride_length <= 60 OR ride_length >= 86400;
+GO
+````
+
+Below the queries are shown that create new columns and update the table with data related to days, weeks, months, quarters, and years.
+````
+--Add columns and update week#, Quarter, Month, Weekday, Year
+ALTER TABLE trips2
+ADD week# INT NULL;
+GO
+
+UPDATE trips2
+SET week# = DATEPART(WK, started_at); 
+
+ALTER TABLE trips2
+ADD Quarter INT NULL;
+
+ALTER TABLE trips2
+ADD Month INT NULL;
+
+ALTER TABLE trips2
+ADD Weekday INT NULL;
+GO
+
+UPDATE trips2
+SET Quarter = DATEPART(QUARTER, started_at);
+
+UPDATE trips2
+SET Month = DATEPART(MONTH, started_at);
+
+UPDATE trips2
+SET Weekday = DATEPART(WEEKDAY, started_at);
+
+ALTER TABLE trips2
+ADD Day_name nvarchar(50) NULL;
+GO
+
+UPDATE trips2
+SET Day_name = DATEName(weekday, started_at);
+
+ALTER TABLE trips2
+ADD Year INT NULL;
+GO
+
+UPDATE trips2
+SET Year = DATEPART(year, started_at);
+````
 
