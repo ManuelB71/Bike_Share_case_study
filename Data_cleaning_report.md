@@ -186,7 +186,7 @@ WHERE ride_length <= 60 OR ride_length >= 86400;
 GO
 ````
 
-Below the queries are shown that create new columns and update the table with data related to days, weeks, months, quarters, and years.
+Below the queries are shown that create new columns and update the table with data related to days, weeks, months, quarters, year and season.
 ````
 --Add columns and update week#, Quarter, Month, Weekday, Year
 ALTER TABLE trips2
@@ -228,5 +228,28 @@ GO
 
 UPDATE trips2
 SET Year = DATEPART(year, started_at);
+
+ALTER TABLE trips2
+ADD Season nvarchar(50) NULL;
+
+UPDATE trips2
+SET Season = 
+	CASE
+		WHEN mnth = 12 THEN 'Winter'
+		WHEN mnth = 1 THEN 'Winter'
+		WHEN mnth = 2 THEN 'Winter'
+		WHEN mnth = 3 THEN 'Spring'
+		WHEN mnth = 4 THEN 'Spring'
+		WHEN mnth = 5 THEN 'Spring'
+		WHEN mnth = 6 THEN 'Summer'
+		WHEN mnth = 7 THEN 'Summer'
+		WHEN mnth = 8 THEN 'Summer'
+		WHEN mnth = 9 THEN 'Autumn'
+		WHEN mnth = 10 THEN 'Autumn'
+		WHEN mnth = 11 THEN 'Autumn'
+		ELSE NULL
+	END
+;
+GO
 ````
 
