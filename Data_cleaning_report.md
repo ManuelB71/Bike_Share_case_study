@@ -253,3 +253,7 @@ SET Season =
 GO
 ````
 
+## Data Export
+The final step is exporting the cleansed data for further processing. This is done with the export wizard in SQL Server.
+
+
