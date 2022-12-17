@@ -37,6 +37,27 @@ Now that the data has been processed for analysis, the Analyze phase circles bac
 
 ## SHARE
 
+### Main insights analysis phase:
+
+**Work travel rides** - Casual riders appear to show a bike usage trend around work travel days (Monday to Friday) and hours (6 am-9 am / 4 pm-6 pm) that is comparable to Member riders bike usage. A Casual rider could have a monetary incentive to take on an annual membership if he/she for example travels to work every business day (back and forth), for 5 minutes per ride and 8 weeks in a year. This is also achievable if Casual riders only ride during favorable weather conditions (late Spring and early Fall). 
+
+**Non-work travel rides** - Casual riders that periodically ride for longer than 20 mins (trend in average ride length) may be cheaper off if they use the bikes above a certain periodicity (example 1: classic bike rental > 2.5 rides per month; example 2: electric bike rental > 2 rides per month [based on Divvy pricing plans in Chicago]). 
+
+**Weekends / Holidays rides** - Casual riders have a tendency to rent bikes more often during the weekends and around the Summer holidays. Although an annual membership may be too expensive if riders in this group do not ride above a certain threshold, they may be inclined to take on a less expensive tailored membership.
+
+### Top 3 recommendations to convert casual riders into taking a membership:
+
+1. Create a marketing campaign specifically targetting casual riders that regularly make use of the bike sharing service to travel to / from work (and perhaps also students).
+
+2. Create a marketing campaign specifically targetting casual riders that take several rides per month lasting 20 mins(average ride length) or longer.
+
+3. Introduce specialized memberships to target casual riders that frequently ride during the weekends or holidays (weekend / holiday memberships at a reduced price compared to a full annual membership). Create a marketing campaign specifically targetting casual riders that make use of the bike sharing service in these periods.
+
+*Concentrate individual marketing efforts around those stations and coordinates that show a correlation to the recommendations. To interpret these correctly knowledge of work / leisure movements in the city is a necessity.* 
+
+Note: the analysis can be further enhanced / confirmed by additional clean up of the missing / ambiguous data in the original dataset (station names, IDs, coordinates). 
 
 ## ACT
+The Cyclistic BikeShare Executive team should decide on a course for action based on the presented analysis and recommendations and devise (a) marketing campaign(s) together with the Marketing team.
 
+### This concludes the capstone case study.
